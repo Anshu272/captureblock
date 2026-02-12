@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer base {
+
+  html,
+  body {
+    @apply h-full w-full m-0 p-0 overflow-x-hidden bg-black text-white font-sans;
+  }
+
+  #root {
+    @apply h-full w-full flex flex-col bg-main-gradient;
+  }
+}
+
+/* Custom scrollbar to match the theme */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/20;
+  }
+}
