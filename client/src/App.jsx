@@ -173,43 +173,47 @@ function App() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-black bg-main-gradient relative text-white font-sans overflow-x-hidden">
-      {showSetup && <SetupScreen onJoin={handleJoin} />}
+      {showSetup ? (
+        <SetupScreen onJoin={handleJoin} />
+      ) : (
+        <>
+          {toast && (
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-accent-primary text-black px-6 py-3 rounded-full font-bold shadow-gold animate-fade-in flex items-center gap-2 tabular-nums">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {toast}
+            </div>
+          )}
 
-      {toast && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-accent-primary text-black px-6 py-3 rounded-full font-bold shadow-gold animate-fade-in flex items-center gap-2 tabular-nums">
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {toast}
-        </div>
-      )}
+          <Header
+            isConnected={isConnected}
+            userColor={userColor}
+            userName={userName}
+            onNameChange={handleNameChange}
+            connectedUsers={connectedUsers}
+          />
 
-      <Header
-        isConnected={isConnected}
-        userColor={showSetup ? null : userColor}
-        userName={showSetup ? '' : userName}
-        onNameChange={handleNameChange}
-        connectedUsers={connectedUsers}
-      />
+          <main className="flex-1 flex flex-col lg:flex-row gap-8 p-4 lg:p-8 w-full max-w-[1920px] mx-auto">
+            <div className="flex-1 flex flex-col items-center justify-start min-w-0 w-full">
+              <div className="w-full bg-bg-glass backdrop-blur-xl border border-white/5 rounded-3xl p-4 lg:p-6 shadow-2xl flex justify-center">
+                <Grid
+                  blocks={blocks}
+                  userId={userId}
+                  onBlockClick={handleBlockClick}
+                />
+              </div>
+            </div>
 
-      <main className="flex-1 flex flex-col lg:flex-row gap-8 p-4 lg:p-8 w-full max-w-[1920px] mx-auto">
-        <div className="flex-1 flex flex-col items-center justify-start min-w-0 w-full">
-          <div className="w-full bg-bg-glass backdrop-blur-xl border border-white/5 rounded-3xl p-4 lg:p-6 shadow-2xl flex justify-center">
-            <Grid
-              blocks={blocks}
-              userId={userId}
-              onBlockClick={handleBlockClick}
+            <Sidebar
+              myColor={userColor}
+              myBlocksCount={myBlocksCount}
+              stats={stats}
+              connectedUsers={connectedUsers}
             />
-          </div>
-        </div>
-
-        <Sidebar
-          myColor={userColor}
-          myBlocksCount={myBlocksCount}
-          stats={stats}
-          connectedUsers={connectedUsers}
-        />
-      </main>
+          </main>
+        </>
+      )}
     </div>
   );
 }
