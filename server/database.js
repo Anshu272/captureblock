@@ -162,15 +162,17 @@ export async function clearBlocksByUserId(userId) {
         }
     });
 
-    if (clearedBlocks.length > 0) {
-        delete inMemoryData.users[userId];
+    // Always delete the user from memory and DB on disconnect
+    delete inMemoryData.users[userId];
 
-        try {
-            await Block.deleteMany({ owner_id: userId });
-            await User.deleteOne({ id: userId });
-        } catch (err) {
-            console.error('Error clearing user data:', err);
+    try {
+        await Block.deleteMany({ owner_id: userId });
+        await User.deleteOne({ id: userId });
+        if (clearedBlocks.length > 0) {
+            console.log(`🧹 Cleared ${clearedBlocks.length} blocks for user ${userId}`);
         }
+    } catch (err) {
+        console.error('Error clearing user data:', err);
     }
 
     return clearedBlocks;
