@@ -7,12 +7,8 @@ import SetupScreen from './components/SetupScreen';
 import useWebSocket from './hooks/useWebSocket';
 
 const isProduction = window.location.hostname !== 'localhost';
-const WS_URL = isProduction
-  ? `wss://${window.location.host}`
-  : 'ws://localhost:3001';
-const API_URL = isProduction
-  ? `https://${window.location.host}`
-  : 'http://localhost:3001';
+const WS_URL = isProduction ? 'wss://captureblock.onrender.com' : 'ws://localhost:3001';
+const API_URL = isProduction ? 'https://captureblock.onrender.com' : 'http://localhost:3001';
 
 function App() {
   const [blocks, setBlocks] = useState({});

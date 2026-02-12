@@ -9,7 +9,7 @@ const SetupScreen = ({ onJoin }) => {
     useEffect(() => {
         const apiUrl = window.location.hostname === 'localhost'
             ? 'http://localhost:3001/api/colors'
-            : '/api/colors';
+            : 'https://captureblock.onrender.com/api/colors';
 
         fetch(apiUrl)
             .then(res => res.json())
