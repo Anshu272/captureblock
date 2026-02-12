@@ -195,6 +195,12 @@ async function start() {
             console.error('WebSocket error:', error);
         });
     });
+
+    if (process.env.NODE_ENV === 'production') {
+        app.get('*', (req, res) => {
+            res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+        });
+    }
 }
 
 function handleClaimBlock(ws, data) {
