@@ -7,7 +7,11 @@ const SetupScreen = ({ onJoin }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:3001/api/colors')
+        const apiUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:3001/api/colors'
+            : '/api/colors';
+
+        fetch(apiUrl)
             .then(res => res.json())
             .then(data => {
                 setColors(data.colors);

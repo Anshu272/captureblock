@@ -3,6 +3,8 @@ import { WebSocketServer } from 'ws';
 import { v4 as uuidv4 } from 'uuid';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
     initDatabase,
     getAllBlocks,
@@ -28,6 +30,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../client/dist')));
+}
 
 const COLORS = [
     '#FF6B6B', '#FF8E53', '#FFA500', '#FFD93D', '#6BCB77',
@@ -67,6 +76,12 @@ app.get('/api/colors', (req, res) => {
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+    });
+}
 
 const clients = new Map();
 

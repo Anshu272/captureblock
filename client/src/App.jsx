@@ -6,8 +6,13 @@ import Header from './components/Header';
 import SetupScreen from './components/SetupScreen';
 import useWebSocket from './hooks/useWebSocket';
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const isProduction = window.location.hostname !== 'localhost';
+const WS_URL = isProduction
+  ? `wss://${window.location.host}`
+  : 'ws://localhost:3001';
+const API_URL = isProduction
+  ? `https://${window.location.host}`
+  : 'http://localhost:3001';
 
 function App() {
   const [blocks, setBlocks] = useState({});
