@@ -1,0 +1,31 @@
+services:
+  # Backend Server
+  - type: web
+    name: realtimeblock-server
+    runtime: node
+    region: oregon
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /health
+
+  # Frontend Client
+  - type: web
+    name: realtimeblock-client
+    runtime: static
+    region: oregon
+    plan: free
+    buildCommand: cd client && npm install && npm run build
+    staticPublishPath: ./client/dist
+    envVars:
+      - key: VITE_WS_URL
+        sync: false
+      - key: VITE_API_URL
+        sync: false

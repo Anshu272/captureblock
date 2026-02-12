@@ -20,11 +20,15 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL || '*'
+        : '*',
+    credentials: true
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
-// Color palette for users - diverse and vibrant colors
 const COLORS = [
     '#FF6B6B', '#FF8E53', '#FFA500', '#FFD93D', '#6BCB77',
     '#4D96FF', '#6C5CE7', '#A29BFE', '#FD79A8', '#E84393',
@@ -36,7 +40,6 @@ function getRandomColor() {
     return COLORS[Math.floor(Math.random() * COLORS.length)];
 }
 
-// HTTP Routes
 app.get('/api/grid', (req, res) => {
     try {
         const blocks = getAllBlocks();
@@ -65,8 +68,7 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Broadcast message to all connected clients
-const clients = new Map(); // Map<ws, {userId, color, name}>
+const clients = new Map();
 
 function broadcast(message) {
     const messageStr = JSON.stringify(message);
@@ -77,7 +79,6 @@ function broadcast(message) {
     });
 }
 
-// Broadcast user count
 function broadcastUserCount() {
     broadcast({
         type: 'user-count',
@@ -85,7 +86,6 @@ function broadcastUserCount() {
     });
 }
 
-// Broadcast stats
 function broadcastStats() {
     const stats = getStats();
     broadcast({
@@ -94,32 +94,27 @@ function broadcastStats() {
     });
 }
 
-// Start Server
 async function start() {
-    // 1. Initialize Database
     await initDatabase();
 
-    // 2. Start HTTP server
+
     const server = app.listen(PORT, () => {
         console.log(`🚀 Server running on port ${PORT}`);
     });
 
-    // 3. WebSocket Server
     const wss = new WebSocketServer({ server });
 
     wss.on('connection', (ws) => {
         const userId = uuidv4();
         const userColor = getRandomColor();
 
-        // Store client info
         clients.set(ws, { userId, color: userColor, name: null });
 
-        // Create user in database
+
         upsertUser(userId, userColor);
 
         console.log(`👤 User connected: ${userId} (${userColor})`);
 
-        // Send initial data to the new client
         ws.send(JSON.stringify({
             type: 'init',
             userId,
@@ -129,10 +124,9 @@ async function start() {
             connectedUsers: clients.size
         }));
 
-        // Broadcast user count to all clients
         broadcastUserCount();
 
-        // Handle incoming messages
+
         ws.on('message', (message) => {
             try {
                 const data = JSON.parse(message);
@@ -158,24 +152,21 @@ async function start() {
             }
         });
 
-        // Handle disconnect
         ws.on('close', () => {
             const client = clients.get(ws);
             if (client) {
                 console.log(`👋 User disconnected: ${client.userId}`);
 
-                // Clear blocks owned by this user
                 clearBlocksByUserId(client.userId).then(clearedBlocks => {
                     if (clearedBlocks.length > 0) {
                         console.log(`🧹 Cleared ${clearedBlocks.length} blocks for user ${client.userId}`);
 
-                        // Broadcast cleared blocks
                         broadcast({
                             type: 'blocks-cleared',
                             blocks: clearedBlocks.map(b => ({ x: b.x, y: b.y }))
                         });
 
-                        // Broadcast updated stats
+
                         broadcastStats();
                     }
                 });
@@ -191,7 +182,6 @@ async function start() {
     });
 }
 
-// Handle block claim
 function handleClaimBlock(ws, data) {
     const client = clients.get(ws);
     if (!client) return;
@@ -199,7 +189,6 @@ function handleClaimBlock(ws, data) {
     const { x, y } = data;
     const { userId, color, name } = client;
 
-    // Validate coordinates
     if (typeof x !== 'number' || typeof y !== 'number' ||
         x < 0 || x >= 40 || y < 0 || y >= 20) {
         ws.send(JSON.stringify({
@@ -209,11 +198,9 @@ function handleClaimBlock(ws, data) {
         return;
     }
 
-    // Attempt to claim the block
     const success = claimBlock(x, y, userId, color, name);
 
     if (success) {
-        // Broadcast the update to all clients
         const update = {
             type: 'block-claimed',
             block: {
@@ -228,10 +215,8 @@ function handleClaimBlock(ws, data) {
 
         broadcast(update);
 
-        // Send updated stats
         broadcastStats();
     } else {
-        // Block already claimed
         ws.send(JSON.stringify({
             type: 'claim-failed',
             x,
@@ -241,7 +226,6 @@ function handleClaimBlock(ws, data) {
     }
 }
 
-// Handle name update
 function handleUpdateName(ws, data) {
     const client = clients.get(ws);
     if (!client) return;
@@ -251,25 +235,22 @@ function handleUpdateName(ws, data) {
         return;
     }
 
-    const trimmedName = name.trim().slice(0, 20); // Max 20 characters
+    const trimmedName = name.trim().slice(0, 20);
 
-    // Update in memory
+
     client.name = trimmedName;
 
-    // Update in database
     updateUserName(client.userId, trimmedName);
 
-    // Confirm to client
+
     ws.send(JSON.stringify({
         type: 'name-updated',
         name: trimmedName
     }));
 
-    // Broadcast updated stats (leaderboard will show new name)
     broadcastStats();
 }
 
-// Handle color update
 function handleUpdateColor(ws, data) {
     const client = clients.get(ws);
     if (!client) return;
@@ -279,20 +260,17 @@ function handleUpdateColor(ws, data) {
         return;
     }
 
-    // Update in memory
     client.color = color;
 
-    // Update in database
+
     updateUserColor(client.userId, color);
 
-    // Broadcast updated stats & blocks to update current grid visuals
     broadcast({
         type: 'user-color-updated',
         userId: client.userId,
         color: color
     });
 
-    // Send updated stats
     broadcastStats();
 }
 

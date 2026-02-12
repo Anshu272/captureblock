@@ -6,7 +6,8 @@ import Header from './components/Header';
 import SetupScreen from './components/SetupScreen';
 import useWebSocket from './hooks/useWebSocket';
 
-const WS_URL = 'ws://localhost:3001';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3001';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function App() {
   const [blocks, setBlocks] = useState({});
@@ -21,7 +22,7 @@ function App() {
   const [connectedUsers, setConnectedUsers] = useState(0);
   const [myBlocksCount, setMyBlocksCount] = useState(0);
   const [showSetup, setShowSetup] = useState(true);
-  const [cooldownTime, setCooldownTime] = useState(0); // Remaining cooldown in ms
+  const [cooldownTime, setCooldownTime] = useState(0);
   const [toast, setToast] = useState(null);
 
   useEffect(() => {
@@ -31,7 +32,6 @@ function App() {
     }
   }, [toast]);
 
-  // Cooldown timer effect
   useEffect(() => {
     if (cooldownTime > 0) {
       const timer = setInterval(() => {
@@ -41,7 +41,6 @@ function App() {
     }
   }, [cooldownTime]);
 
-  // Update toast when cooldown is active
   useEffect(() => {
     if (cooldownTime > 0) {
       setToast(`Cooldown: ${(cooldownTime / 1000).toFixed(0)}s`);
@@ -58,7 +57,6 @@ function App() {
           setUserColor(data.color);
           setConnectedUsers(data.connectedUsers);
 
-          // Convert blocks array to object for faster lookup
           const blocksObj = {};
           data.blocks.forEach(block => {
             blocksObj[`${block.x},${block.y}`] = block;
@@ -66,7 +64,6 @@ function App() {
           setBlocks(blocksObj);
           setStats(data.stats);
 
-          // Count my blocks
           const myCount = data.blocks.filter(b => b.owner_id === data.userId).length;
           setMyBlocksCount(myCount);
           break;
@@ -78,7 +75,6 @@ function App() {
             [`${block.x},${block.y}`]: block
           }));
 
-          // Update my blocks count if I claimed it
           if (block.owner_id === userId) {
             setMyBlocksCount(prev => prev + 1);
           }
@@ -104,8 +100,7 @@ function App() {
           if (data.userId === userId) {
             setUserColor(data.color);
           }
-          // Request grid update to refresh visuals
-          fetch('http://localhost:3001/api/grid')
+          fetch(`${API_URL}/api/grid`)
             .then(res => res.json())
             .then(gridData => {
               const blocksObj = {};
@@ -135,7 +130,6 @@ function App() {
   const handleBlockClick = useCallback((x, y) => {
     if (!isConnected || blocks[`${x},${y}`]) return;
 
-    // Check cooldown
     if (cooldownTime > 0) {
       return;
     }
@@ -146,7 +140,6 @@ function App() {
       y
     });
 
-    // Set 5s cooldown
     setCooldownTime(2000);
   }, [isConnected, blocks, sendMessage, cooldownTime]);
 
@@ -164,7 +157,6 @@ function App() {
     setUserName(name);
     setUserColor(color);
 
-    // Sync with server
     sendMessage({
       type: 'update-name',
       name: name
@@ -182,7 +174,6 @@ function App() {
     <div className="min-h-screen w-full flex flex-col bg-black bg-main-gradient relative text-white font-sans overflow-x-hidden">
       {showSetup && <SetupScreen onJoin={handleJoin} />}
 
-      {/* Toast Notification */}
       {toast && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[100] bg-accent-primary text-black px-6 py-3 rounded-full font-bold shadow-gold animate-fade-in flex items-center gap-2 tabular-nums">
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

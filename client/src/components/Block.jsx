@@ -1,22 +1,17 @@
 import React from 'react';
 
 function Block({ x, y, block, isMine, onClick }) {
-    // Base classes
     let classes = "aspect-square cursor-pointer relative transition-all duration-200 ease-out border border-white/5 hover:z-10 hover:scale-125 hover:shadow-gold hover:border-accent-primary/50 group";
 
-    // Style object
     const style = {};
 
     if (block) {
-        // Claimed block
         classes += " shadow-inner animate-claim border-none";
         style.backgroundColor = block.owner_color;
-        // Add a subtle glow to my blocks
         if (isMine) {
             classes += " shadow-[0_0_8px_rgba(255,255,255,0.4)]";
         }
     } else {
-        // Unclaimed block
         classes += " bg-white/[0.02] hover:bg-accent-primary/10";
     }
 

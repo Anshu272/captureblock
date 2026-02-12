@@ -6,13 +6,11 @@ function useWebSocket(url, { onMessage }) {
     const reconnectTimeoutRef = useRef(null);
     const onMessageRef = useRef(onMessage);
 
-    // Update the ref when onMessage changes
     useEffect(() => {
         onMessageRef.current = onMessage;
     }, [onMessage]);
 
     const connect = useCallback(() => {
-        // Don't create a new connection if one already exists and is open
         if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
             return;
         }
@@ -43,7 +41,6 @@ function useWebSocket(url, { onMessage }) {
                 setIsConnected(false);
                 wsRef.current = null;
 
-                // Attempt to reconnect after 3 seconds
                 reconnectTimeoutRef.current = setTimeout(() => {
                     console.log('🔄 Attempting to reconnect...');
                     connect();
@@ -63,10 +60,9 @@ function useWebSocket(url, { onMessage }) {
             if (reconnectTimeoutRef.current) {
                 clearTimeout(reconnectTimeoutRef.current);
             }
-            // Safely close connection
             const ws = wsRef.current;
             if (ws) {
-                ws.onclose = null; // Prevent reconnect trigger
+                ws.onclose = null;
                 ws.onerror = null;
                 ws.onmessage = null;
                 ws.onopen = null;
