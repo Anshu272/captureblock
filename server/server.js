@@ -34,8 +34,12 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const staticPath = path.join(__dirname, '../client/dist');
+console.log(`Current environment: ${process.env.NODE_ENV}`);
+console.log(`Statics path: ${staticPath}`);
+
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
+    app.use(express.static(staticPath));
 }
 
 const COLORS = [
@@ -76,12 +80,6 @@ app.get('/api/colors', (req, res) => {
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
-
-if (process.env.NODE_ENV === 'production') {
-    app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-    });
-}
 
 const clients = new Map();
 
@@ -197,9 +195,11 @@ async function start() {
     });
 
     if (process.env.NODE_ENV === 'production') {
+        const indexPath = path.join(__dirname, '../client/dist/index.html');
         app.get('*', (req, res) => {
-            res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+            res.sendFile(indexPath);
         });
+        console.log(`Registered catch-all route for: ${indexPath}`);
     }
 }
 
