@@ -165,27 +165,24 @@ async function start() {
             }
         });
 
-        ws.on('close', () => {
+        ws.on('close', async () => {
             const client = clients.get(ws);
             if (client) {
                 console.log(`👋 User disconnected: ${client.userId}`);
 
-                clearBlocksByUserId(client.userId).then(clearedBlocks => {
-                    if (clearedBlocks.length > 0) {
-                        console.log(`🧹 Cleared ${clearedBlocks.length} blocks for user ${client.userId}`);
+                const clearedBlocks = await clearBlocksByUserId(client.userId);
 
-                        broadcast({
-                            type: 'blocks-cleared',
-                            blocks: clearedBlocks.map(b => ({ x: b.x, y: b.y }))
-                        });
-
-
-                        broadcastStats();
-                    }
-                });
+                if (clearedBlocks.length > 0) {
+                    console.log(`🧹 Broadcast: Cleared ${clearedBlocks.length} blocks for user ${client.userId}`);
+                    broadcast({
+                        type: 'blocks-cleared',
+                        blocks: clearedBlocks.map(b => ({ x: b.x, y: b.y }))
+                    });
+                }
 
                 clients.delete(ws);
                 broadcastUserCount();
+                broadcastStats(); // Always broadcast to update Total Users count in Sidebar
             }
         });
 

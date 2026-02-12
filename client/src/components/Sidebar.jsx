@@ -28,13 +28,9 @@ function Sidebar({ myColor, myBlocksCount, stats, connectedUsers }) {
                     <span className="text-text-secondary text-sm font-medium">Total Blocks</span>
                     <span className="text-lg font-bold text-white">{stats.totalBlocksClaimed} <span className="text-text-muted text-sm font-normal">/ 800</span></span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-b border-white/5">
+                <div className="flex justify-between items-center py-1">
                     <span className="text-text-secondary text-sm font-medium">Players Online</span>
                     <span className="text-lg font-bold text-accent-primary drop-shadow-gold">{connectedUsers}</span>
-                </div>
-                <div className="flex justify-between items-center py-1">
-                    <span className="text-text-secondary text-sm font-medium">Total Players</span>
-                    <span className="text-lg font-bold text-white">{stats.totalUsers}</span>
                 </div>
             </div>
 

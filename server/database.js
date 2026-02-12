@@ -166,10 +166,13 @@ export async function clearBlocksByUserId(userId) {
     delete inMemoryData.users[userId];
 
     try {
-        await Block.deleteMany({ owner_id: userId });
-        await User.deleteOne({ id: userId });
+        const blockRes = await Block.deleteMany({ owner_id: userId });
+        const userRes = await User.deleteOne({ id: userId });
+
+        console.log(`🗑️ DB Cleanup for ${userId}: deleted user:${userRes.deletedCount}, blocks:${blockRes.deletedCount}`);
+
         if (clearedBlocks.length > 0) {
-            console.log(`🧹 Cleared ${clearedBlocks.length} blocks for user ${userId}`);
+            console.log(`🧹 Memory Cleanup: Cleared ${clearedBlocks.length} blocks for user ${userId}`);
         }
     } catch (err) {
         console.error('Error clearing user data:', err);
