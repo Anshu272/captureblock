@@ -26,7 +26,7 @@ function Grid({ blocks, userId, onBlockClick }) {
     }
 
     return (
-        <div className="grid grid-cols-[repeat(40,minmax(0,1fr))] gap-[1px] bg-white/5 p-[1px] rounded-xl w-full max-w-[95vw] aspect-[2/1] shadow-2xl overflow-hidden mx-auto border border-white/10">
+        <div className="grid grid-cols-[repeat(40,minmax(20px,1fr))] gap-[1px] bg-white/5 p-[1px] rounded-xl w-full max-w-full overflow-x-auto shadow-2xl mx-auto border border-white/10 scrollbar-thin">
             {gridBlocks}
         </div>
     );

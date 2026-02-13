@@ -196,7 +196,7 @@ function App() {
 
           <main className="flex-1 flex flex-col lg:flex-row gap-8 p-4 lg:p-8 w-full max-w-[1920px] mx-auto">
             <div className="flex-1 flex flex-col items-center justify-start min-w-0 w-full">
-              <div className="w-full bg-bg-glass backdrop-blur-xl border border-white/5 rounded-3xl p-4 lg:p-6 shadow-2xl flex justify-center">
+              <div className="w-full bg-bg-glass backdrop-blur-xl border border-white/5 rounded-3xl p-4 lg:p-6 shadow-2xl flex justify-start lg:justify-center overflow-hidden">
                 <Grid
                   blocks={blocks}
                   userId={userId}
